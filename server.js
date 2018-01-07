@@ -2,30 +2,21 @@
 
 const express = require('express');
 const app = express();
-const jwt = require('express-jwt');
-const jwks = require('jwks-rsa');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+
+const admin = require('firebase-admin');
+// import * as admin from "firebase-admin"; // en ES2015
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-const authCheck = jwt({
-  secret: jwks.expressJwtSecret({
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        //jwksUri: "https://{YOUR-AUTH0-DOMAIN}/.well-known/jwks.json"
-        jwksUri: "https://jmp.eu.auth0.com/.well-known/jwks.json"
-    }),
-    // This is the identifier we set when we created the API
-    //audience: '{YOUR-API-AUDIENCE-ATTRIBUTE}',
-    audience: 'http://startupbattle.com',
-    //issuer: "https://{YOUR-AUTH0-DOMAIN}.auth0.com/",
-    issuer: "https://jmp.eu.auth0.com/",
-    //issuer: "jmp.eu.auth0.com",
-    algorithms: ['RS256']
+var serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://vue-con-auth.firebaseio.com' 
 });
 
 app.get('/authorized', function (req, res) {
@@ -92,7 +83,12 @@ app.get('/api/battles/public', (req, res) => {
   res.json(publicBattles);
 })
 
-app.get('/api/battles/private', authCheck, (req,res) => {
+app.get('/api/battles/private', (req, res) => {
+
+  console.log('server: api private invocada...');
+
+  var idToken = req.get("authorization").split("Bearer ").pop();;  
+
   let privateBattles = [
   {
     id: 2111,
@@ -149,7 +145,22 @@ app.get('/api/battles/private', authCheck, (req,res) => {
     seedFund: '4M'
   }];
 
-  res.json(privateBattles);
+    // Get the ID token passed.
+    // const idToken = req.body.idToken;
+
+    console.log('idToken recibida: ' + idToken); 
+    // Verify the ID token and decode its payload.
+    admin.auth().verifyIdToken(idToken)
+    .then(function(decodedToken) {
+      var uid = decodedToken.uid;
+      console.log('Token verificado: ' + idToken);
+      // ...
+      res.json(privateBattles);  
+    }).catch(function(error) {
+      // Handle error
+      console.log('Error verificando token: ' + e);
+      res.json({});
+    });
 })
 
 app.listen(3333);

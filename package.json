@@ -13,7 +13,7 @@
     "body-parser": "^1.15.2",
     "cors": "^2.8.1",
     "express": "^4.14.0",
-    "express-jwt": "^3.4.0",
-    "jwks-rsa": "^1.a1.1"
+    "firebase-admin": "^5.7.0",
+    "pinkie-promise": "git+https://github.com/floatdrop/pinkie-promise.git"
   }
 }

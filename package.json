@@ -10,9 +10,9 @@
   },
   "author": "JMP",
   "dependencies": {
-    "body-parser": "^1.15.2",
+    "body-parser": "^1.20.1",
     "cors": "^2.8.1",
-    "express": "^4.16.3",
+    "express": "^4.18.2",
     "firebase-admin": "^5.13.1",
     "pinkie-promise": "git+https://github.com/floatdrop/pinkie-promise.git"
   }
